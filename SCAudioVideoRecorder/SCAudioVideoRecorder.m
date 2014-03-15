@@ -22,7 +22,7 @@ NSString * const SCAudioVideoRecorderPhotoJPEGKey = @"SCAudioVideoRecorderPhotoJ
 NSString * const SCAudioVideoRecorderPhotoImageKey = @"SCAudioVideoRecorderPhotoImageKey";
 NSString * const SCAudioVideoRecorderPhotoThumbnailKey = @"SCAudioVideoRecorderPhotoThumbnailKey";
 
-static CGFloat const SCAudioVideoRecorderThumbnailWidth = 160.0f;
+//static CGFloat const SCAudioVideoRecorderThumbnailWidth = 160.0f;
 
 ////////////////////////////////////////////////////////////
 // PRIVATE DEFINITION
@@ -57,7 +57,7 @@ static CGFloat const SCAudioVideoRecorderThumbnailWidth = 160.0f;
 
 @implementation SCAudioVideoRecorder
 
-@synthesize delegate;
+@synthesize delegate = _delegate;
 @synthesize videoOutput;
 @synthesize audioOutput;
 @synthesize outputFileUrl;
@@ -126,16 +126,17 @@ static CGFloat const SCAudioVideoRecorderThumbnailWidth = 160.0f;
 // Video Recorder methods
 //
 
-- (void) prepareRecordingAtCameraRoll:(NSError **)error {
-	[self prepareRecordingOnTempDir:error];
+- (BOOL) prepareRecordingAtCameraRoll:(NSError **)error {
+    BOOL success = [self prepareRecordingOnTempDir:error] != nil;
 	shouldWriteToCameraRoll = YES;
+    return success;
 }
 
 - (NSURL*) prepareRecordingOnTempDir:(NSError **)error {
-	long timeInterval =  (long)[[NSDate date] timeIntervalSince1970];
-	NSURL * fileUrl = [NSURL fileURLWithPath:[NSString stringWithFormat:@"%@%ld%@", NSTemporaryDirectory(), timeInterval, @"SCVideo.mp4"]];
+	long timeInterval = (long)[[NSDate date] timeIntervalSince1970];
+	NSURL *fileUrl = [NSURL fileURLWithPath:[NSString stringWithFormat:@"%@%ld%@", NSTemporaryDirectory(), timeInterval, @"SCVideo.mp4"]];
     
-	NSError * recordError = nil;
+	NSError *recordError = nil;
 	[self prepareRecordingAtUrl:fileUrl error:&recordError];
     
 	if (recordError != nil) {
@@ -150,11 +151,11 @@ static CGFloat const SCAudioVideoRecorderThumbnailWidth = 160.0f;
 }
 
 
-- (void) prepareRecordingAtUrl:(NSURL *)fileUrl error:(NSError **)error {
+- (BOOL) prepareRecordingAtUrl:(NSURL *)fileUrl error:(NSError **)error {
 	if (fileUrl == nil) {
 		[NSException raise:@"Invalid argument" format:@"FileUrl must be not nil"];
 	}
-	   
+    __block BOOL success;
 	dispatch_sync(self.dispatch_queue, ^{
 		[self reset];
 		[self startBackgroundTask];
@@ -162,9 +163,9 @@ static CGFloat const SCAudioVideoRecorderThumbnailWidth = 160.0f;
 		shouldWriteToCameraRoll = NO;
 		self.currentTimeOffset = CMTimeMake(0, 1);
 		
-		NSError * assetError;
+		NSError *assetError;
 		
-		AVAssetWriter * writer = [[AVAssetWriter alloc] initWithURL:fileUrl fileType:self.outputFileType error:&assetError];
+		AVAssetWriter *writer = [[AVAssetWriter alloc] initWithURL:fileUrl fileType:self.outputFileType error:&assetError];
 		
 		if (assetError == nil) {
 			self.assetWriter = writer;
@@ -178,11 +179,13 @@ static CGFloat const SCAudioVideoRecorderThumbnailWidth = 160.0f;
 				*error = assetError;
 			}
 		}
+        success = assetError == nil;
 	});
 	if (self.playbackAsset != nil) {
 		self.playbackPlayer = [AVPlayer playerWithPlayerItem:[AVPlayerItem playerItemWithAsset:self.playbackAsset]];
 		[self.playbackPlayer seekToTime:self.playbackStartTime];
 	}
+    return success;
 }
 
 - (void) removeFile:(NSURL *)fileURL {
@@ -195,14 +198,15 @@ static CGFloat const SCAudioVideoRecorderThumbnailWidth = 160.0f;
 }
 
 - (void) finalizeAudioMixForUrl:(NSURL*)fileUrl withCompletionBlock:(void(^)(NSError *))completionBlock {
-	NSError * error = nil;
+	NSError *error = nil;
 	if (self.playbackAsset != nil) {
-        if ([self.delegate respondsToSelector:@selector(audioVideoRecorder:willFinalizeAudioMixAtUrl:)]) {
-            [self.delegate audioVideoRecorder:self willFinalizeAudioMixAtUrl:fileUrl];
+        id<SCAudioVideoRecorderDelegate> delegate = self.delegate;
+        if ([delegate respondsToSelector:@selector(audioVideoRecorder:willFinalizeAudioMixAtUrl:)]) {
+            [delegate audioVideoRecorder:self willFinalizeAudioMixAtUrl:fileUrl];
         }
         
 		// Move the file to a temporary one
-		NSURL * oldUrl = [[fileUrl URLByDeletingPathExtension] URLByAppendingPathExtension:@"old.mp4"];
+		NSURL *oldUrl = [[fileUrl URLByDeletingPathExtension] URLByAppendingPathExtension:@"old.mp4"];
 		[[NSFileManager defaultManager] moveItemAtURL:fileUrl toURL:oldUrl error:&error];
 		
 		if (error == nil) {
@@ -230,7 +234,7 @@ static CGFloat const SCAudioVideoRecorderThumbnailWidth = 160.0f;
 	[self finalizeAudioMixForUrl:fileUrl withCompletionBlock:^(NSError * error) {
 		if (shouldWriteToCameraRoll && error == nil) {
 #if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
-			ALAssetsLibrary * library = [[ALAssetsLibrary alloc] init];
+			ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
 			[library writeVideoAtPathToSavedPhotosAlbum:fileUrl completionBlock:^(NSURL *assetUrl, NSError * error) {
 				[self pleaseDontReleaseObject:library];
 				
@@ -264,8 +268,9 @@ static CGFloat const SCAudioVideoRecorderThumbnailWidth = 160.0f;
 
 - (void) notifyRecordFinishedAtUrl:(NSURL*)url withError:(NSError*)error {
 	[self dispatchBlockOnAskedQueue:^{
-		if ([self.delegate respondsToSelector:@selector(audioVideoRecorder:didFinishRecordingAtUrl:error:)]) {
-			[self.delegate audioVideoRecorder:self didFinishRecordingAtUrl:url error:error];
+        id<SCAudioVideoRecorderDelegate> delegate = self.delegate;
+		if ([delegate respondsToSelector:@selector(audioVideoRecorder:didFinishRecordingAtUrl:error:)]) {
+			[delegate audioVideoRecorder:self didFinishRecordingAtUrl:url error:error];
 		}
 	}];
 }
@@ -311,8 +316,9 @@ static CGFloat const SCAudioVideoRecorderThumbnailWidth = 160.0f;
              
              if (error) {
 				 [self dispatchBlockOnAskedQueue:^{
-					 if ([self.delegate respondsToSelector:@selector(audioVideoRecorder:capturedPhoto:error:)]) {
-						 [self.delegate audioVideoRecorder:self capturedPhoto:nil error:error];
+                     id<SCAudioVideoRecorderDelegate> delegate = self.delegate;
+					 if ([delegate respondsToSelector:@selector(audioVideoRecorder:capturedPhoto:error:)]) {
+						 [delegate audioVideoRecorder:self capturedPhoto:nil error:error];
 					 }
 				 }];
 				 return;
@@ -350,8 +356,9 @@ static CGFloat const SCAudioVideoRecorderThumbnailWidth = 160.0f;
              }
              
 			 [self dispatchBlockOnAskedQueue:^{
-				 if ([self.delegate respondsToSelector:@selector(audioVideoRecorder:capturedPhoto:error:)]) {
-					 [self.delegate audioVideoRecorder:self capturedPhoto:photoDict error:error];
+                 id<SCAudioVideoRecorderDelegate> delegate = self.delegate;
+				 if ([delegate respondsToSelector:@selector(audioVideoRecorder:capturedPhoto:error:)]) {
+					 [delegate audioVideoRecorder:self capturedPhoto:photoDict error:error];
 				 }
 			 }];
          }];
@@ -363,8 +370,9 @@ static CGFloat const SCAudioVideoRecorderThumbnailWidth = 160.0f;
 	[self pause];
 	[self stopBackgroundTask];
 	
-	if ([self.delegate respondsToSelector:@selector(audioVideoRecorder:willFinishRecordingAtTime:)]) {
-		[self.delegate audioVideoRecorder:self willFinishRecordingAtTime:self.currentRecordingTime];
+    id<SCAudioVideoRecorderDelegate> delegate = self.delegate;
+	if ([delegate respondsToSelector:@selector(audioVideoRecorder:willFinishRecordingAtTime:)]) {
+		[delegate audioVideoRecorder:self willFinishRecordingAtTime:self.currentRecordingTime];
 	}
     
 	dispatch_async(self.dispatch_queue, ^{
@@ -377,8 +385,8 @@ static CGFloat const SCAudioVideoRecorderThumbnailWidth = 160.0f;
 }
 
 - (void) stopInternal {
-	NSURL * fileUrl = self.outputFileUrl;
-	NSError * error = self.assetWriter.error;
+	NSURL *fileUrl = self.outputFileUrl;
+	NSError *error = self.assetWriter.error;
 	
 	switch (self.assetWriter.status) {
 		case AVAssetWriterStatusWriting:
@@ -430,8 +438,8 @@ static CGFloat const SCAudioVideoRecorderThumbnailWidth = 160.0f;
 
 - (void) reset {
 	[self stopBackgroundTask];
-	AVAssetWriter * writer = self.assetWriter;
-	NSURL * fileUrl = self.outputFileUrl;
+	AVAssetWriter *writer = self.assetWriter;
+	NSURL *fileUrl = self.outputFileUrl;
 	
 	audioEncoderReady = NO;
 	videoEncoderReady = NO;
@@ -464,12 +472,14 @@ static CGFloat const SCAudioVideoRecorderThumbnailWidth = 160.0f;
 		self.currentRecordingTime = frameTime;
 		
         if (dataEncoder == self.audioEncoder) {
-            if ([self.delegate respondsToSelector:@selector(audioVideoRecorder:didRecordAudioSample:)]) {
-                [self.delegate audioVideoRecorder:self didRecordAudioSample:frameTime];
+            id<SCAudioVideoRecorderDelegate> delegate = self.delegate;
+            if ([delegate respondsToSelector:@selector(audioVideoRecorder:didRecordAudioSample:)]) {
+                [delegate audioVideoRecorder:self didRecordAudioSample:frameTime];
             }
         } else if (dataEncoder == self.videoEncoder) {
-            if ([self.delegate respondsToSelector:@selector(audioVideoRecorder:didRecordVideoFrame:)]) {
-                [self.delegate audioVideoRecorder:self didRecordVideoFrame:frameTime];
+            id<SCAudioVideoRecorderDelegate> delegate = self.delegate;
+            if ([delegate respondsToSelector:@selector(audioVideoRecorder:didRecordVideoFrame:)]) {
+                [delegate audioVideoRecorder:self didRecordVideoFrame:frameTime];
             }
         }
 		if (CMTIME_COMPARE_INLINE(frameTime, >=, self.recordingDurationLimit)) {
@@ -481,12 +491,14 @@ static CGFloat const SCAudioVideoRecorderThumbnailWidth = 160.0f;
 - (void) dataEncoder:(SCDataEncoder *)dataEncoder didFailToInitializeEncoder:(NSError *)error {
     [self dispatchBlockOnAskedQueue: ^ {
         if (dataEncoder == self.audioEncoder) {
-            if ([self.delegate respondsToSelector:@selector(audioVideoRecorder:didFailToInitializeAudioEncoder:)]) {
-                [self.delegate audioVideoRecorder:self didFailToInitializeAudioEncoder:error];
+            id<SCAudioVideoRecorderDelegate> delegate = self.delegate;
+            if ([delegate respondsToSelector:@selector(audioVideoRecorder:didFailToInitializeAudioEncoder:)]) {
+                [delegate audioVideoRecorder:self didFailToInitializeAudioEncoder:error];
             }
         } else if (dataEncoder == self.videoEncoder) {
-            if ([self.delegate respondsToSelector:@selector(audioVideoRecorder:didFailToInitializeVideoEncoder:)]) {
-                [self.delegate audioVideoRecorder:self didFailToInitializeVideoEncoder:error];
+            id<SCAudioVideoRecorderDelegate> delegate = self.delegate;
+            if ([delegate respondsToSelector:@selector(audioVideoRecorder:didFailToInitializeVideoEncoder:)]) {
+                [delegate audioVideoRecorder:self didFailToInitializeVideoEncoder:error];
             }
         }
     }];

@@ -52,7 +52,7 @@
 }
 
 - (void)showError:(NSError*)error {
-      [[[UIAlertView alloc] initWithTitle:@"Something went wrong" message:error.localizedDescription delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
+    [[[UIAlertView alloc] initWithTitle:@"Something went wrong" message:error.localizedDescription delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
 }
 
 - (void)didReceiveMemoryWarning
@@ -63,7 +63,7 @@
 
 - (IBAction)recordPressed:(id)sender {
     if (![self.camera isPrepared]) {
-        NSError * error = nil;
+        NSError *error = nil;
         [self.camera prepareRecordingOnTempDir:&error];
         
         if (error == nil) {
@@ -84,17 +84,19 @@
 
 - (void)hidePlayControl:(BOOL)animated {
     [UIView animateWithDuration:animated ? 0.3 : 0 animations:^{
-        CGRect frame = self.playView.frame;
+        UIView *playView = self.playView;
+        CGRect frame = playView.frame;
         frame.origin.y = self.view.frame.size.height;
-        self.playView.frame = frame;
+        playView.frame = frame;
     }];
 }
 
 - (void)showPlayControl:(BOOL)animated {
     [UIView animateWithDuration:animated ? 0.3 : 0 animations:^{
-        CGRect frame = self.playView.frame;
+        UIView *playView = self.playView;
+        CGRect frame = playView.frame;
         frame.origin.y = self.view.frame.size.height - frame.size.height;
-        self.playView.frame = frame;
+        playView.frame = frame;
     }];
 }
 

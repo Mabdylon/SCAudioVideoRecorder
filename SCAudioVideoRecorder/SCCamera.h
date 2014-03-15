@@ -40,7 +40,7 @@ typedef NS_ENUM(NSInteger, SCCameraFocusMode) {
 
 // Focus
 - (void)cameraWillStartFocus:(SCCamera *)camera;
-- (void)cameraDidStartFocus:(SCCamera*)camera;
+- (void)cameraDidStartFocus:(SCCamera *)camera;
 - (void)cameraDidStopFocus:(SCCamera *)camera;
 - (void)camera:(SCCamera *)camera didFailFocus:(NSError *)error;
 
@@ -66,20 +66,20 @@ typedef enum {
     
 }
 
-+ (SCCamera*) camera;
++ (SCCamera *) camera;
 
-- (id) initWithSessionPreset:(NSString*)sessionPreset;
+- (id) initWithSessionPreset:(NSString *)sessionPreset;
 
 // Replaces initialize:
-- (void)openSession:(void(^)(NSError * audioError, NSError * videoError))completionHandler;
+- (void)openSession:(void(^)(NSError *audioError, NSError *videoError))completionHandler;
 - (void)closeSession;
 
-@property (strong, nonatomic, readonly) AVCaptureSession * session;
+@property (strong, nonatomic, readonly) AVCaptureSession *session;
 @property (weak, nonatomic) id<SCCameraDelegate> delegate;
-@property (copy, nonatomic) NSString * sessionPreset;
+@property (copy, nonatomic) NSString *sessionPreset;
 @property (assign, nonatomic) SCCameraPreviewVideoGravity previewVideoGravity;
 @property (assign, nonatomic) AVCaptureVideoOrientation videoOrientation;
-@property (readonly) AVCaptureDevice * currentDevice;
+@property (readonly) AVCaptureDevice *currentDevice;
 @property (readonly) BOOL isOpeningSession;
 @property (readonly) BOOL isSessionOpened;
 @property (readonly) BOOL isSessionRunning;
@@ -103,7 +103,7 @@ typedef enum {
 - (BOOL)setActiveFormatThatSupportsFrameRate:(NSInteger)frameRate width:(NSInteger)width andHeight:(NSInteger)height error:(NSError**)error;
 
 // Switch between back and front camera
-- (void) switchCamera;
+- (void)switchCamera;
 
 - (BOOL)isFrameRateSupported:(NSInteger)frameRate;
 
@@ -117,7 +117,7 @@ typedef enum {
 @property (assign, nonatomic) NSInteger frameRate;
 
 // preview
-@property (weak, nonatomic) UIView * previewView;
+@property (weak, nonatomic) UIView *previewView;
 
 @property (nonatomic, readonly) CGRect cleanAperture;
 @property (readonly, nonatomic) SCCameraFocusMode focusMode;

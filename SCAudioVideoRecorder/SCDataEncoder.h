@@ -19,8 +19,8 @@
 @protocol SCDataEncoderDelegate <NSObject>
 
 @optional
-- (void) dataEncoder:(SCDataEncoder*)dataEncoder didEncodeFrame:(CMTime)frameTime;
-- (void) dataEncoder:(SCDataEncoder *)dataEncoder didFailToInitializeEncoder:(NSError*)error;
+- (void) dataEncoder:(SCDataEncoder *)dataEncoder didEncodeFrame:(CMTime)frameTime;
+- (void) dataEncoder:(SCDataEncoder *)dataEncoder didFailToInitializeEncoder:(NSError *)error;
 
 @end
 
@@ -28,15 +28,15 @@
     
 }
 
-- (id) initWithAudioVideoRecorder:(SCAudioVideoRecorder*)audioVideoRecorder;
+- (id) initWithAudioVideoRecorder:(SCAudioVideoRecorder *)audioVideoRecorder;
 - (void) reset;
 
 // Abstract method
-- (AVAssetWriterInput*) createWriterInputForSampleBuffer:(CMSampleBufferRef)sampleBuffer error:(NSError**)error;
+- (AVAssetWriterInput*) createWriterInputForSampleBuffer:(CMSampleBufferRef)sampleBuffer error:(NSError **)error;
 
 @property (assign, nonatomic) BOOL enabled;
-@property (strong, nonatomic) AVAssetWriterInput * writerInput;
+@property (strong, nonatomic) AVAssetWriterInput *writerInput;
 @property (weak, nonatomic) id<SCDataEncoderDelegate> delegate;
-@property (weak, nonatomic, readonly) SCAudioVideoRecorder * audioVideoRecorder;
+@property (weak, nonatomic, readonly) SCAudioVideoRecorder *audioVideoRecorder;
 
 @end
