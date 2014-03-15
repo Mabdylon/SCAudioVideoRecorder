@@ -147,9 +147,6 @@
 		DC264E1417BAE7D700A5EF98 /* SCButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCButton.h; sourceTree = "<group>"; };
 		DC264E1517BAE7D700A5EF98 /* SCButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCButton.m; sourceTree = "<group>"; };
 		DC3528A817B963830077F039 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
-		DC3528AB17B963830077F039 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
-		DC3528AC17B963830077F039 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
-		DC3528AD17B963830077F039 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		DC36981F17AF132600F5012B /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
 		DC4CBA391863100500532F1F /* SCCameraFocusView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCCameraFocusView.h; sourceTree = "<group>"; };
 		DC4CBA3A1863100500532F1F /* SCCameraFocusView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCCameraFocusView.m; sourceTree = "<group>"; };
@@ -258,6 +255,36 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		C850271218D4AC1E00B1C11B /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				ABCB9420184BAC2C00BB5927 /* OpenGLES.framework */,
+				AB2BA4021833B4A700B7CFA2 /* QuartzCore.framework */,
+				ABCC89F51829AAB6000D3886 /* ImageIO.framework */,
+				DC599B6517B481BB00500F05 /* AudioToolbox.framework */,
+				DC36981F17AF132600F5012B /* AssetsLibrary.framework */,
+				DC551C7117ADF12800E37F8F /* CoreVideo.framework */,
+				DC551C6F17ADF12200E37F8F /* CoreMedia.framework */,
+				DC551C6A17ADDA4400E37F8F /* AVFoundation.framework */,
+				DC551C4717ADD66000E37F8F /* UIKit.framework */,
+				DC551C4917ADD66000E37F8F /* Foundation.framework */,
+				DC551C4B17ADD66000E37F8F /* CoreGraphics.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		C850271318D4AC2B00B1C11B /* OSX */ = {
+			isa = PBXGroup;
+			children = (
+				DC264DF017BACA7400A5EF98 /* CoreVideo.framework */,
+				DC264DEE17BACA5A00A5EF98 /* CoreMedia.framework */,
+				DC264DEC17BACA3E00A5EF98 /* AVFoundation.framework */,
+				DC264DEA17BAC67300A5EF98 /* AudioToolbox.framework */,
+				DC3528A817B963830077F039 /* Cocoa.framework */,
+			);
+			name = OSX;
+			sourceTree = "<group>";
+		};
 		DC23FE0C17B41FAB00389EDA /* SCAudioVideoRecorderExampleIOS */ = {
 			isa = PBXGroup;
 			children = (
@@ -326,16 +353,6 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		DC3528AA17B963830077F039 /* Other Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				DC3528AB17B963830077F039 /* AppKit.framework */,
-				DC3528AC17B963830077F039 /* CoreData.framework */,
-				DC3528AD17B963830077F039 /* Foundation.framework */,
-			);
-			name = "Other Frameworks";
-			sourceTree = "<group>";
-		};
 		DC5194EF184E4AC3002B6D58 /* SCAudioVideoRecorder */ = {
 			isa = PBXGroup;
 			children = (
@@ -357,8 +374,6 @@
 		DC551C3B17ADD66000E37F8F = {
 			isa = PBXGroup;
 			children = (
-				DC264DF017BACA7400A5EF98 /* CoreVideo.framework */,
-				DC264DEE17BACA5A00A5EF98 /* CoreMedia.framework */,
 				DC551C4D17ADD66000E37F8F /* SCAudioVideoRecorder */,
 				DC264DD117BAC20C00A5EF98 /* SCAudioVideoRecorderMac */,
 				DC23FE0C17B41FAB00389EDA /* SCAudioVideoRecorderExampleIOS */,
@@ -383,22 +398,9 @@
 		DC551C4617ADD66000E37F8F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				ABCB9420184BAC2C00BB5927 /* OpenGLES.framework */,
-				AB2BA4021833B4A700B7CFA2 /* QuartzCore.framework */,
-				ABCC89F51829AAB6000D3886 /* ImageIO.framework */,
-				DC264DEC17BACA3E00A5EF98 /* AVFoundation.framework */,
-				DC264DEA17BAC67300A5EF98 /* AudioToolbox.framework */,
-				DC599B6517B481BB00500F05 /* AudioToolbox.framework */,
-				DC36981F17AF132600F5012B /* AssetsLibrary.framework */,
-				DC551C7117ADF12800E37F8F /* CoreVideo.framework */,
-				DC551C6F17ADF12200E37F8F /* CoreMedia.framework */,
-				DC551C6A17ADDA4400E37F8F /* AVFoundation.framework */,
-				DC551C4717ADD66000E37F8F /* UIKit.framework */,
-				DC551C4917ADD66000E37F8F /* Foundation.framework */,
-				DC551C4B17ADD66000E37F8F /* CoreGraphics.framework */,
-				DC3528A817B963830077F039 /* Cocoa.framework */,
+				C850271218D4AC1E00B1C11B /* iOS */,
+				C850271318D4AC2B00B1C11B /* OSX */,
 				DC5194FB184E4AC3002B6D58 /* XCTest.framework */,
-				DC3528AA17B963830077F039 /* Other Frameworks */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
