@@ -439,13 +439,13 @@ typedef UIView View;
     return _cameraDevice;
 }
 
-- (BOOL)isFrameRateSupported:(NSInteger)frameRate {
-    AVCaptureDevice *device = self.currentVideoDeviceInput.device;
+- (BOOL)isFrameRateSupported:(CMTimeScale)frameRate {
+    AVCaptureDevice * device = self.currentVideoDeviceInput.device;
     
     if (device != nil) {
         for (AVCaptureDeviceFormat * format in device.formats) {
             for (AVFrameRateRange * frameRateRange in format.videoSupportedFrameRateRanges) {
-                if (((NSInteger)frameRateRange.minFrameRate <= frameRate) && (frameRate <= (NSInteger)frameRateRange.maxFrameRate)) {
+                if (((CMTimeScale)frameRateRange.minFrameRate <= frameRate) && (frameRate <= (CMTimeScale)frameRateRange.maxFrameRate)) {
                     return YES;
                 }
             }
@@ -455,7 +455,7 @@ typedef UIView View;
     return NO;
 }
 
-- (void)setFrameRate:(NSInteger)framePerSeconds {
+- (void)setFrameRate:(CMTimeScale)framePerSeconds {
     CMTime fps = CMTimeMake(1, framePerSeconds);
     
     AVCaptureDevice *device = self.currentVideoDeviceInput.device;
@@ -498,10 +498,10 @@ typedef UIView View;
     }
 }
 
-- (NSInteger)frameRate {
-    AVCaptureDeviceInput *deviceInput = self.currentVideoDeviceInput;
+- (CMTimeScale)frameRate {
+    AVCaptureDeviceInput * deviceInput = self.currentVideoDeviceInput;
     
-    NSInteger framerate = 0;
+    CMTimeScale framerate = 0;
     
     if (deviceInput != nil) {
         if ([deviceInput.device respondsToSelector:@selector(activeVideoMaxFrameDuration)]) {
@@ -515,12 +515,12 @@ typedef UIView View;
     return framerate;
 }
 
-- (BOOL)formatInRange:(AVCaptureDeviceFormat *)format frameRate:(NSInteger)frameRate dimensions:(CMVideoDimensions)dimensions {
+- (BOOL)formatInRange:(AVCaptureDeviceFormat*)format frameRate:(CMTimeScale)frameRate dimensions:(CMVideoDimensions)dimensions {
     CMVideoDimensions size = CMVideoFormatDescriptionGetDimensions(format.formatDescription);
     
     if (size.width >= dimensions.width && size.height >= dimensions.height) {
-        for (AVFrameRateRange *range in format.videoSupportedFrameRateRanges) {
-            if ((NSInteger)range.minFrameRate <= frameRate && (NSInteger)range.maxFrameRate >= frameRate) {
+        for (AVFrameRateRange * range in format.videoSupportedFrameRateRanges) {
+            if ((CMTimeScale)range.minFrameRate <= frameRate && (CMTimeScale)range.maxFrameRate >= frameRate) {
                 return YES;
             }
         }
@@ -529,8 +529,8 @@ typedef UIView View;
     return NO;
 }
 
-- (BOOL)setActiveFormatThatSupportsFrameRate:(NSInteger)frameRate width:(NSInteger)width andHeight:(NSInteger)height error:(NSError *__autoreleasing *)error {
-    AVCaptureDevice *device = self.currentDevice;
+- (BOOL)setActiveFormatThatSupportsFrameRate:(CMTimeScale)frameRate width:(int)width andHeight:(int)height error:(NSError *__autoreleasing *)error {
+    AVCaptureDevice * device = self.currentDevice;
     CMVideoDimensions dimensions;
     dimensions.width = width;
     dimensions.height = height;
@@ -545,7 +545,7 @@ typedef UIView View;
         if (!foundSupported) {
             for (AVCaptureDeviceFormat * format in device.formats) {
                 if ([self formatInRange:format frameRate:frameRate dimensions:dimensions]) {
-                    NSInteger oldFrameRate = self.frameRate;
+                    CMTimeScale oldFrameRate = self.frameRate;
                     if ([device lockForConfiguration:error]) {
                         device.activeFormat = format;
                         [device unlockForConfiguration];
